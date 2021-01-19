@@ -50,7 +50,7 @@ export default function Transfer() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(state),
     };
-    fetch("/api", requestOptions)
+    fetch("/api/transfer", requestOptions)
       .then((response) => response.json())
       .then((data) => this.setState({ postId: data.id }));
   };
@@ -125,7 +125,6 @@ export default function Transfer() {
                   type="submit"
                   fullWidth
                   variant="contained"
-                  color="primary"
                   className={classes.submit}
                   color="success"
                 >

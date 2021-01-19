@@ -18,7 +18,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { createHashHistory } from "history";
-import { Router, Route, Switch, HashRouter } from "react-router-dom";
+import { Route, Switch, HashRouter } from "react-router-dom";
 
 // core components
 import Dashboard from "layouts/Dashboard.js";
@@ -29,13 +29,38 @@ import "assets/css/material-dashboard-react.css?v=1.9.0";
 
 const hist = createHashHistory();
 
-ReactDOM.render(
-  <HashRouter history={hist}>
-    <Switch>
-      <Route path="/dashboard/" component={Dashboard} />
-      <Route path="/signup" component={SignUp} />
-      <Route exact path="/" component={SignIn} />
-    </Switch>
-  </HashRouter>,
-  document.getElementById("root")
-);
+export default function useToken() {
+  const getToken = () => {
+    const tokenString = sessionStorage.getItem("token");
+    return tokenString;
+  };
+
+  const [token, setToken] = React.useState(getToken());
+
+  const saveToken = (userToken) => {
+    sessionStorage.setItem("token", userToken);
+    setToken(userToken);
+  };
+
+  return { setToken: saveToken, token };
+}
+
+function App() {
+  const { token, setToken } = useToken();
+
+  if (!token) {
+    return <SignIn setToken={setToken} />;
+  }
+
+  return (
+    <HashRouter history={hist}>
+      <Switch>
+        <Route path="/" component={Dashboard} />
+        <Route path="/signup" component={SignUp} />
+        <Route exact path="/" component={SignIn} />
+      </Switch>
+    </HashRouter>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));

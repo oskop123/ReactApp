@@ -32,6 +32,14 @@ const useStyles = makeStyles(styles);
 
 export default function UserProfile() {
   const classes = useStyles();
+  const [user, setUser] = React.useState(new Array(8));
+
+  React.useEffect(() => {
+    fetch("/api/customers/1")
+      .then((response) => response.json())
+      .then((json) => setUser(json))
+      .then(json => console.log(json));
+  }, []);
 
   return (
     <div>
@@ -45,7 +53,7 @@ export default function UserProfile() {
               <TextField
                 id="login"
                 label="Login"
-                defaultValue="login"
+                value={user[5]}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -57,7 +65,7 @@ export default function UserProfile() {
               <TextField
                 id="email"
                 label="Email"
-                defaultValue="email"
+                value={user[3]}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -69,7 +77,7 @@ export default function UserProfile() {
               <TextField
                 id="firstName"
                 label="First Name"
-                defaultValue="Fname"
+                value={user[1]}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -81,7 +89,7 @@ export default function UserProfile() {
               <TextField
                 id="lastName"
                 label="Last Name"
-                defaultValue="Lname"
+                value={user[2]}
                 InputProps={{
                   readOnly: true,
                 }}

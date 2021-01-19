@@ -22,8 +22,6 @@ export default function Accounts() {
   const classes = useStyles();
 
   const [users, setUsers] = React.useState(["", "", ""]);
-  const [loading, setLoading] = React.useState();
-  const [error, setError] = React.useState();
   const [state, setState] = React.useState();
 
   const handleChange = (event) => {
@@ -44,20 +42,8 @@ export default function Accounts() {
 
   React.useEffect(() => {
     fetch("/api/accounts")
-      .then((response) => {
-        if (response.ok) return response.json();
-        throw response;
-      })
-      .then((json) => {
-        setUsers(json);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .then((response) => response.json())
+      .then((json) => setUsers(json));
   }, []);
 
   return (

@@ -8,6 +8,8 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 
+import PropTypes from "prop-types";
+
 const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -28,7 +30,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignIn() {
+async function loginUser(credentials) {
+  return fetch("/api/loginjwt", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(credentials),
+  }).then((data) => data.json());
+}
+
+export default function SignIn({ setToken }) {
   const classes = useStyles();
 
   const [state, setState] = React.useState();
@@ -37,27 +49,10 @@ export default function SignIn() {
     setState({ ...state, [event.target.name]: event.target.value });
   };
 
-  const handleSubmit = async (event) => {
-    var formBody = [];
-    for (var property in state) {
-      var encodedKey = encodeURIComponent(property);
-      var encodedValue = encodeURIComponent(state[property]);
-      formBody.push(encodedKey + "=" + encodedValue);
-    }
-
-    formBody.push(encodeURIComponent('action') + "=" + encodeURIComponent('login'));
-
-    formBody = formBody.join("&");
-
-    event.preventDefault();
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: formBody,
-    };
-    fetch("/api/login", requestOptions)
-      .then((response) => response.json())
-      .then((data) => console.log(data));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const token = await loginUser(state);
+    setToken(token.access_token);
   };
 
   return (
@@ -109,3 +104,7 @@ export default function SignIn() {
     </Container>
   );
 }
+
+SignIn.propTypes = {
+  setToken: PropTypes.func.isRequired,
+};
