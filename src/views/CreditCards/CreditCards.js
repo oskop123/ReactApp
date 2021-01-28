@@ -22,7 +22,8 @@ const accounts = ["acc1", "acc2"];
 export default function Cards() {
   const classes = useStyles();
 
-  const [state, setState] = React.useState();
+  const [state, setState] = React.useState({});
+  const [cc, setCC] = React.useState([]);
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value });
@@ -40,41 +41,53 @@ export default function Cards() {
       .then((data) => this.setState({ postId: data.id }));
   };
 
+  React.useEffect(() => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
+      },
+    };
+    fetch("/api/credit_cards", requestOptions)
+      .then((response) => response.json())
+      .then((json) => setCC(json));
+  }, []);
+
   return (
     <div>
       <GridContainer>
-        {" "}
-        <GridItem xs={12} sm={12} md={4}>
-          <Card>
-            <CardHeader color="info" stats icon>
-              <CardIcon color="info">
-                <Payment />
-              </CardIcon>
-              <p className={classes.cardCategory}>Number</p>
-              <h3 className={classes.cardTitle}>xxxxxxxxxxxxxxxxxxxxxx</h3>
-            </CardHeader>
-            <CardBody>
-              <GridContainer>
-                <GridItem xs={6} sm={6} md={6}>
-                  <p className={classes.cardCategory}>Limit: </p>
-                  <h3 className={classes.cardTitle}>
-                    5000 <small>$</small>
-                  </h3>
-                </GridItem>
-                <GridItem xs={6} sm={6} md={6}>
-                  <p className={classes.cardCategory}>Expiry Date: </p>
-                  <h3 className={classes.cardTitle}>01-01-2020</h3>
-                </GridItem>
-              </GridContainer>
-            </CardBody>
-            <CardFooter
-              stats
-              style={{ display: "flex", justifyContent: "flex-end" }}
-            >
-              <Button color="danger">Remove</Button>
-            </CardFooter>
-          </Card>
-        </GridItem>
+        {cc.map((card) => (
+          <GridItem xs={12} sm={12} md={4}>
+            <Card>
+              <CardHeader color="info" stats icon>
+                <CardIcon color="info">
+                  <Payment />
+                </CardIcon>
+                <p className={classes.cardCategory}>ID:</p>
+                <h3 className={classes.cardTitle}>{card.idCreditCards}</h3>
+              </CardHeader>
+              <CardBody>
+                <GridContainer>
+                  <GridItem xs={6} sm={6} md={6}>
+                    <p className={classes.cardCategory}>Limit: </p>
+                    <h3 className={classes.cardTitle}>{card.maximumLimit}</h3>
+                  </GridItem>
+                  <GridItem xs={6} sm={6} md={6}>
+                    <p className={classes.cardCategory}>Expiry Date: </p>
+                    <h3 className={classes.cardTitle}>{card.expiryDate}</h3>
+                  </GridItem>
+                </GridContainer>
+              </CardBody>
+              <CardFooter
+                stats
+                style={{ display: "flex", justifyContent: "flex-end" }}
+              >
+                <Button color="danger">Remove</Button>
+              </CardFooter>
+            </Card>
+          </GridItem>
+        ))}
+
         <GridItem xs={12} sm={12} md={4}>
           <Card>
             <CardHeader color="info" stats icon>

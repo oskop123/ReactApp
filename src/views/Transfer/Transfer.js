@@ -47,12 +47,15 @@ export default function Transfer() {
     event.preventDefault();
     const requestOptions = {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
+      },
       body: JSON.stringify(state),
     };
     fetch("/api/transfer", requestOptions)
       .then((response) => response.json())
-      .then((data) => this.setState({ postId: data.id }));
+      .then((data) => console.log(data));
   };
 
   return (
@@ -63,11 +66,7 @@ export default function Transfer() {
             <CardHeader color="info">
               <h4 className={classes.cardTitleWhite}>Cash Transfer</h4>
             </CardHeader>
-            <form
-              className={classes.form}
-              noValidate
-              onSubmit={handleSubmit}
-            >
+            <form className={classes.form} noValidate onSubmit={handleSubmit}>
               <CardBody>
                 <TextField
                   variant="outlined"
@@ -97,8 +96,8 @@ export default function Transfer() {
                 <TextField
                   variant="outlined"
                   required
-                  id="Account Number"
-                  name="account_number"
+                  id="accountNumber"
+                  name="accountNumber"
                   label="Account Number"
                   margin="normal"
                   fullWidth
@@ -107,8 +106,8 @@ export default function Transfer() {
                 <TextField
                   variant="outlined"
                   required
-                  name="account"
-                  id="From Account"
+                  name="fromAccount"
+                  id="fromAccount"
                   label="From Account"
                   margin="normal"
                   select

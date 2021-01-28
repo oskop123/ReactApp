@@ -21,7 +21,7 @@ const useStyles = makeStyles(styles);
 export default function Accounts() {
   const classes = useStyles();
 
-  const [users, setUsers] = React.useState(["", "", ""]);
+  const [users, setUsers] = React.useState([]);
   const [state, setState] = React.useState();
 
   const handleChange = (event) => {
@@ -35,13 +35,23 @@ export default function Accounts() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(state),
     };
-    fetch("/api/add_account", requestOptions)
+    fetch("/api/accounts", requestOptions)
       .then((response) => response.json())
       .then((data) => this.setState({ postId: data.id }));
   };
 
+  function handleRemove(test) {
+    console.log(test);
+  }
+
   React.useEffect(() => {
-    fetch("/api/accounts")
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
+      },
+    };
+    fetch("/api/accounts", requestOptions)
       .then((response) => response.json())
       .then((json) => setUsers(json));
   }, []);
@@ -49,36 +59,43 @@ export default function Accounts() {
   return (
     <div>
       <GridContainer>
-        {" "}
-        <GridItem xs={12} sm={12} md={4}>
-          <Card>
-            <CardHeader color="info" stats icon>
-              <CardIcon color="info">
-                <AccountIcon />
-              </CardIcon>
-              <p className={classes.cardCategory}>Number</p>
-              <h3 className={classes.cardTitle}>{users[0][1]}</h3>
-            </CardHeader>
-            <CardBody>
-              <GridContainer>
-                <GridItem xs={6} sm={6} md={6}>
-                  <p className={classes.cardCategory}>Balance: </p>
-                  <h3 className={classes.cardTitle}>{users[0][3]} $</h3>
-                </GridItem>
-                <GridItem xs={6} sm={6} md={6}>
-                  <p className={classes.cardCategory}>Creation Date: </p>
-                  <h3 className={classes.cardTitle}>{users[0][2]}</h3>
-                </GridItem>
-              </GridContainer>
-            </CardBody>
-            <CardFooter
-              stats
-              style={{ display: "flex", justifyContent: "flex-end" }}
-            >
-              <Button color="danger">Remove</Button>
-            </CardFooter>
-          </Card>
-        </GridItem>
+        {users.map((user) => (
+          <GridItem xs={12} sm={12} md={4}>
+            <Card key={user.idAccounts}>
+              <CardHeader color="info" stats icon>
+                <CardIcon color="info">
+                  <AccountIcon />
+                </CardIcon>
+                <p className={classes.cardCategory}>Number</p>
+                <h3 className={classes.cardTitle}>{user.number}</h3>
+              </CardHeader>
+              <CardBody>
+                <GridContainer>
+                  <GridItem xs={6} sm={6} md={6}>
+                    <p className={classes.cardCategory}>Balance: </p>
+                    <h3 className={classes.cardTitle}>{user.balance} $</h3>
+                  </GridItem>
+                  <GridItem xs={6} sm={6} md={6}>
+                    <p className={classes.cardCategory}>Creation Date: </p>
+                    <h3 className={classes.cardTitle}>{user.dataOpened}</h3>
+                  </GridItem>
+                </GridContainer>
+              </CardBody>
+              <CardFooter
+                stats
+                style={{ display: "flex", justifyContent: "flex-end" }}
+              >
+                <Button
+                  color="danger"
+                  onClick={() => handleRemove(user.idAccounts)}
+                >
+                  Remove
+                </Button>
+              </CardFooter>
+            </Card>
+          </GridItem>
+        ))}
+
         <GridItem xs={12} sm={12} md={4}>
           <Card>
             <CardHeader color="info" stats icon>
@@ -113,7 +130,7 @@ export default function Accounts() {
                 stats
                 style={{ display: "flex", justifyContent: "flex-end" }}
               >
-                <Button type="submit" color="success">
+                <Button type="submit" color="success" onClick={handleSubmit}>
                   Add
                 </Button>
               </CardFooter>
