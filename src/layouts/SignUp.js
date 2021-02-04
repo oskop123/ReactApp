@@ -32,6 +32,16 @@ const useStyles = makeStyles((theme) => ({
 export default function SignUp() {
   const classes = useStyles();
 
+  const [state, setState] = React.useState({});
+
+  const handleChange = (event) => {
+    setState({ ...state, [event.target.name]: event.target.value });
+  };
+
+  const handleSubmit = async (event) => {
+    console.log(state);
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -42,7 +52,7 @@ export default function SignUp() {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} noValidate onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -54,6 +64,7 @@ export default function SignUp() {
                 id="firstName"
                 label="First Name"
                 autoFocus
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -65,6 +76,7 @@ export default function SignUp() {
                 label="Last Name"
                 name="lastName"
                 autoComplete="lname"
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -75,6 +87,7 @@ export default function SignUp() {
                 id="email"
                 label="Email Address"
                 name="email"
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -85,6 +98,7 @@ export default function SignUp() {
                 id="Login"
                 label="Login"
                 name="login"
+                onChange={handleChange}
               />
             </Grid>
             <Grid item xs={12}>
@@ -97,6 +111,7 @@ export default function SignUp() {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                onChange={handleChange}
               />
             </Grid>
           </Grid>

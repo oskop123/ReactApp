@@ -31,13 +31,12 @@ const styles = {
   },
 };
 
-const accounts = ["test1", "test2"];
-
 const useStyles = makeStyles(styles);
 
 export default function Transfer() {
   const classes = useStyles();
   const [state, setState] = React.useState();
+  const [accounts, setAccounts] = React.useState([]);
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value });
@@ -57,6 +56,19 @@ export default function Transfer() {
       .then((response) => response.json())
       .then((data) => console.log(data));
   };
+
+  React.useEffect(() => {
+    const requestAccounts = {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
+      },
+    };
+
+    fetch("/api/accounts", requestAccounts)
+      .then((response) => response.json())
+      .then((json) => setAccounts(json));
+  }, []);
 
   return (
     <div>
@@ -114,9 +126,9 @@ export default function Transfer() {
                   fullWidth
                   onChange={handleChange}
                 >
-                  {accounts.map((value) => (
-                    <MenuItem key={value} value={value}>
-                      {value}
+                  {accounts.map((account) => (
+                    <MenuItem key={account['number']} value={account['number']}>
+                      {account['number']}
                     </MenuItem>
                   ))}
                 </TextField>

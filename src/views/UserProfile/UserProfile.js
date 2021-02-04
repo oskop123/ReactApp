@@ -34,6 +34,10 @@ export default function UserProfile() {
   const classes = useStyles();
   const [user, setUser] = React.useState({});
 
+  const InputLabelProps = {
+    shrink: true,
+  };
+
   React.useEffect(() => {
     getCustomer();
   }, []);
@@ -58,7 +62,7 @@ export default function UserProfile() {
       </CardHeader>
       <CardBody>
         <GridContainer>
-          <GridItem xs={12} sm={12} md={12}>
+          <GridItem xs={12} sm={6} md={6}>
             <TextField
               id="login"
               label="Login"
@@ -68,9 +72,10 @@ export default function UserProfile() {
               }}
               fullWidth
               margin="normal"
+              InputLabelProps={InputLabelProps}
             />
           </GridItem>
-          <GridItem xs={12} sm={12} md={12}>
+          <GridItem xs={12} sm={6} md={6}>
             <TextField
               id="email"
               label="Email"
@@ -80,9 +85,10 @@ export default function UserProfile() {
               }}
               fullWidth
               margin="normal"
+              InputLabelProps={InputLabelProps}
             />
           </GridItem>
-          <GridItem xs={12} sm={12} md={12}>
+          <GridItem xs={12} sm={6} md={6}>
             <TextField
               id="firstName"
               label="First Name"
@@ -92,9 +98,10 @@ export default function UserProfile() {
               }}
               fullWidth
               margin="normal"
+              InputLabelProps={InputLabelProps}
             />
           </GridItem>
-          <GridItem xs={12} sm={12} md={12}>
+          <GridItem xs={12} sm={6} md={6}>
             <TextField
               id="lastName"
               label="Last Name"
@@ -104,42 +111,33 @@ export default function UserProfile() {
               }}
               fullWidth
               margin="normal"
+              InputLabelProps={InputLabelProps}
             />
           </GridItem>
-          <GridItem xs={12} sm={12} md={12}>
+          <GridItem xs={12} sm={6} md={6}>
             <TextField
-              id="email"
-              label="email"
-              value={user.email}
-              InputProps={{
-                readOnly: true,
-              }}
-              fullWidth
-              margin="normal"
-            />
-          </GridItem>
-          <GridItem xs={12} sm={12} md={12}>
-            <TextField
-              id="phone"
-              label="phone"
+              id="phoneNumber"
+              label="Phone Number"
               value={user.phone}
               InputProps={{
                 readOnly: true,
               }}
               fullWidth
               margin="normal"
+              InputLabelProps={InputLabelProps}
             />
           </GridItem>
-          <GridItem xs={12} sm={12} md={12}>
+          <GridItem xs={12} sm={6} md={6}>
             <TextField
-              id="date"
-              label="Date of becoming a customer:"
+              id="opened"
+              label="Opened"
               value={user.dataBecomeCustomer}
               InputProps={{
                 readOnly: true,
               }}
               fullWidth
               margin="normal"
+              InputLabelProps={InputLabelProps}
             />
           </GridItem>
         </GridContainer>

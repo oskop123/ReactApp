@@ -49,7 +49,14 @@ function App() {
   const { token, setToken } = useToken();
 
   if (!token) {
-    return <SignIn setToken={setToken} />;
+    return (
+      <HashRouter history={hist}>
+        <Switch>
+          <Route exact path="/" render={() => <SignIn setToken={setToken} />} />
+          <Route path="/signup" component={SignUp} />
+        </Switch>
+      </HashRouter>
+    );
   }
 
   return (

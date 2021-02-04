@@ -23,6 +23,7 @@ export default function Accounts() {
 
   const [users, setUsers] = React.useState([]);
   const [state, setState] = React.useState();
+  
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value });
@@ -32,7 +33,10 @@ export default function Accounts() {
     event.preventDefault();
     const requestOptions = {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
+      },
       body: JSON.stringify(state),
     };
     fetch("/api/accounts", requestOptions)

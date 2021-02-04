@@ -17,13 +17,12 @@ import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js"
 
 const useStyles = makeStyles(styles);
 
-const accounts = ["acc1", "acc2"];
-
 export default function Cards() {
   const classes = useStyles();
 
   const [state, setState] = React.useState({});
   const [cc, setCC] = React.useState([]);
+  const [accounts, setAccounts] = React.useState([]);
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value });
@@ -33,24 +32,53 @@ export default function Cards() {
     event.preventDefault();
     const requestOptions = {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
+      },
       body: JSON.stringify(state),
     };
-    fetch("/api/add_account", requestOptions)
-      .then((response) => response.json())
-      .then((data) => this.setState({ postId: data.id }));
+    fetch("/api/credit_cards", requestOptions).then((response) =>
+      console.log(response.json())
+    );
+  };
+
+  const handleRemove = async (cc) => {
+    console.log(cc);
+    const requestOptions = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
+      },
+      body: JSON.stringify({ idCard: cc }),
+    };
+    fetch("/api/credit_cards", requestOptions).then((response) =>
+      console.log(response.json())
+    );
   };
 
   React.useEffect(() => {
-    const requestOptions = {
+    const requestCC = {
       method: "GET",
       headers: {
         Authorization: "Bearer " + sessionStorage.getItem("token"),
       },
     };
-    fetch("/api/credit_cards", requestOptions)
+    fetch("/api/credit_cards", requestCC)
       .then((response) => response.json())
       .then((json) => setCC(json));
+
+    const requestAccounts = {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
+      },
+    };
+
+    fetch("/api/accounts", requestAccounts)
+      .then((response) => response.json())
+      .then((json) => setAccounts(json));
   }, []);
 
   return (
@@ -82,7 +110,12 @@ export default function Cards() {
                 stats
                 style={{ display: "flex", justifyContent: "flex-end" }}
               >
-                <Button color="danger">Remove</Button>
+                <Button
+                  color="danger"
+                  onClick={() => handleRemove(card.idCreditCards)}
+                >
+                  Remove
+                </Button>
               </CardFooter>
             </Card>
           </GridItem>
@@ -105,17 +138,20 @@ export default function Cards() {
                 <TextField
                   variant="outlined"
                   required
-                  name="account"
-                  id="account"
-                  label="account"
+                  name="idAccount"
+                  id="idAccount"
+                  label="idAccounts"
                   margin="normal"
                   select
                   fullWidth
                   onChange={handleChange}
                 >
-                  {accounts.map((value) => (
-                    <MenuItem key={value} value={value}>
-                      {value}
+                  {accounts.map((account) => (
+                    <MenuItem
+                      key={account["idAccounts"]}
+                      value={account["idAccounts"]}
+                    >
+                      {account["idAccounts"]}
                     </MenuItem>
                   ))}
                 </TextField>
