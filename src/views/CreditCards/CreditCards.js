@@ -13,6 +13,8 @@ import CardFooter from "components/Card/CardFooter.js";
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
 
+import Snackbar from "components/Snackbar/Snackbar.js";
+
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 
 const useStyles = makeStyles(styles);
@@ -23,6 +25,29 @@ export default function Cards() {
   const [state, setState] = React.useState({});
   const [cc, setCC] = React.useState([]);
   const [accounts, setAccounts] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
+  const [color, setColor] = React.useState("info");
+  const [msg, setMsg] = React.useState("asdfasdf");
+
+  const showNotification = (response) => {
+    if (open === false) {
+      switch (response.status) {
+        case 200:
+          setColor("success");
+          break;
+        case 401:
+          setColor("warning");
+          break;
+        default:
+          setColor("danger");
+      }
+      setOpen(true);
+      setMsg(response.json());
+      setTimeout(function () {
+        setOpen(false);
+      }, 6000);
+    }
+  };
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value });
@@ -39,7 +64,7 @@ export default function Cards() {
       body: JSON.stringify(state),
     };
     fetch("/api/credit_cards", requestOptions).then((response) =>
-      console.log(response.json())
+      showNotification(response)
     );
   };
 
@@ -83,6 +108,14 @@ export default function Cards() {
 
   return (
     <div>
+      <Snackbar
+        place="bc"
+        color={color}
+        message={msg}
+        open={open}
+        closeNotification={() => setOpen(false)}
+        close
+      />
       <GridContainer>
         {cc.map((card) => (
           <GridItem xs={12} sm={12} md={4}>
