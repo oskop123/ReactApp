@@ -46,13 +46,12 @@ export default function UserProfile() {
     const requestOptions = {
       method: "GET",
       headers: {
-        Authorization: "Bearer " + sessionStorage.getItem("token"),
+        Authorization: "Bearer " + sessionStorage.getItem("access_token"),
       },
     };
     fetch("/api/customer", requestOptions)
       .then((response) => response.json())
-      .then((json) => setUser(json))
-      .then((json) => console.log(json));
+      .then((json) => setUser(json));
   };
 
   return (

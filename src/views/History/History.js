@@ -19,9 +19,8 @@ export default function HistoryTable() {
     };
     fetch("/api/transactions", requestOptions)
       .then((response) => response.json())
-      .then((json) => setHistory(json))
-      .then(console.log(history));
+      .then((json) => setHistory(json));
   }, []);
 
-  return (<div></div>);
+  return <div></div>;
 }

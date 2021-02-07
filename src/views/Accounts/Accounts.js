@@ -14,6 +14,11 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 
 import AccountIcon from "@material-ui/icons/AccountBalance";
 
+import Snackbar from "components/Snackbar/Snackbar.js";
+
+//functions
+import authorisedFetch from "functions/authorisedFetch.js";
+
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 
 const useStyles = makeStyles(styles);
@@ -23,7 +28,29 @@ export default function Accounts() {
 
   const [users, setUsers] = React.useState([]);
   const [state, setState] = React.useState();
-  
+  const [open, setOpen] = React.useState(false);
+  const [color, setColor] = React.useState();
+  const [msg, setMsg] = React.useState();
+
+  const showNotification = (statusCode, message) => {
+    if (open === false) {
+      switch (statusCode) {
+        case 200:
+          setColor("success");
+          break;
+        case 401:
+          setColor("warning");
+          break;
+        default:
+          setColor("danger");
+      }
+      setOpen(true);
+      setMsg(message);
+      setTimeout(function () {
+        setOpen(false);
+      }, 6000);
+    }
+  };
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value });
@@ -31,37 +58,39 @@ export default function Accounts() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + sessionStorage.getItem("token"),
-      },
-      body: JSON.stringify(state),
-    };
-    fetch("/api/accounts", requestOptions)
-      .then((response) => response.json())
-      .then((data) => this.setState({ postId: data.id }));
+    authorisedFetch("/api/accounts", "POST", state).then((response) =>
+      response
+        .json()
+        .then((data) => showNotification(response.status, data["msg"]))
+    );
   };
 
-  function handleRemove(test) {
-    console.log(test);
-  }
+  const handleRemove = async (id) => {
+    authorisedFetch("/api/accounts", "DELETE", {
+      idAccounts: id,
+    }).then((response) =>
+      response
+        .json()
+        .then((data) => showNotification(response.status, data["msg"]))
+    );
+  };
 
   React.useEffect(() => {
-    const requestOptions = {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + sessionStorage.getItem("token"),
-      },
-    };
-    fetch("/api/accounts", requestOptions)
+    authorisedFetch("/api/accounts", "GET")
       .then((response) => response.json())
       .then((json) => setUsers(json));
-  }, []);
+  }, [open]);
 
   return (
     <div>
+      <Snackbar
+        place="bc"
+        color={color}
+        message={msg}
+        open={open}
+        closeNotification={() => setOpen(false)}
+        close
+      />
       <GridContainer>
         {users.map((user) => (
           <GridItem xs={12} sm={12} md={4}>

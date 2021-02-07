@@ -17,6 +17,9 @@ import Snackbar from "components/Snackbar/Snackbar.js";
 
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 
+//functions
+import authorisedFetch from "functions/authorisedFetch.js";
+
 const useStyles = makeStyles(styles);
 
 export default function Cards() {
@@ -26,12 +29,12 @@ export default function Cards() {
   const [cc, setCC] = React.useState([]);
   const [accounts, setAccounts] = React.useState([]);
   const [open, setOpen] = React.useState(false);
-  const [color, setColor] = React.useState("info");
-  const [msg, setMsg] = React.useState("asdfasdf");
+  const [color, setColor] = React.useState();
+  const [msg, setMsg] = React.useState();
 
-  const showNotification = (response) => {
+  const showNotification = (statusCode, message) => {
     if (open === false) {
-      switch (response.status) {
+      switch (statusCode) {
         case 200:
           setColor("success");
           break;
@@ -42,10 +45,7 @@ export default function Cards() {
           setColor("danger");
       }
       setOpen(true);
-      setMsg(response.json());
-      setTimeout(function () {
-        setOpen(false);
-      }, 6000);
+      setMsg(message);
     }
   };
 
@@ -55,56 +55,36 @@ export default function Cards() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + sessionStorage.getItem("token"),
-      },
-      body: JSON.stringify(state),
-    };
-    fetch("/api/credit_cards", requestOptions).then((response) =>
-      showNotification(response)
+    authorisedFetch("/api/credit_cards", "POST", state).then((response) =>
+      response
+        .json()
+        .then((data) => showNotification(response.status, data["msg"]))
     );
   };
 
   const handleRemove = async (cc) => {
-    console.log(cc);
-    const requestOptions = {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + sessionStorage.getItem("token"),
-      },
-      body: JSON.stringify({ idCard: cc }),
-    };
-    fetch("/api/credit_cards", requestOptions).then((response) =>
-      console.log(response.json())
+    authorisedFetch("/api/credit_cards", "DELETE", {
+      idCard: cc,
+    }).then((response) =>
+      response
+        .json()
+        .then((data) => showNotification(response.status, data["msg"]))
     );
   };
 
-  React.useEffect(() => {
-    const requestCC = {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + sessionStorage.getItem("token"),
-      },
-    };
-    fetch("/api/credit_cards", requestCC)
+  const refresh = async () => {
+    authorisedFetch("/api/credit_cards", "GET")
       .then((response) => response.json())
       .then((json) => setCC(json));
+  };
 
-    const requestAccounts = {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + sessionStorage.getItem("token"),
-      },
-    };
+  React.useEffect(() => {
+    refresh();
 
-    fetch("/api/accounts", requestAccounts)
+    authorisedFetch("/api/accounts", "GET")
       .then((response) => response.json())
       .then((json) => setAccounts(json));
-  }, []);
+  }, [open]);
 
   return (
     <div>
@@ -132,6 +112,17 @@ export default function Cards() {
                   <GridItem xs={6} sm={6} md={6}>
                     <p className={classes.cardCategory}>Limit: </p>
                     <h3 className={classes.cardTitle}>{card.maximumLimit}</h3>
+                    <TextField
+                      variant="outlined"
+                      required
+                      name="idAccount"
+                      id="idAccount"
+                      label="Limit: "
+                      margin="normal"
+                      select
+                      fullWidth
+                      onChange={handleChange}
+                    />
                   </GridItem>
                   <GridItem xs={6} sm={6} md={6}>
                     <p className={classes.cardCategory}>Expiry Date: </p>

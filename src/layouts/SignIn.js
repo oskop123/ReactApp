@@ -52,7 +52,7 @@ export default function SignIn({ setToken }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = await loginUser(state);
-    setToken(token.access_token);
+    setToken(token);
   };
 
   return (

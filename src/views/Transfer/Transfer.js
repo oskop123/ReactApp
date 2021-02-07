@@ -1,6 +1,9 @@
 import React from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
+import TextField from "@material-ui/core/TextField";
+import MenuItem from "@material-ui/core/MenuItem";
+import InputAdornment from "@material-ui/core/InputAdornment";
 // core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
@@ -8,9 +11,10 @@ import Button from "components/CustomButtons/Button.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
-import TextField from "@material-ui/core/TextField";
-import MenuItem from "@material-ui/core/MenuItem";
-import InputAdornment from "@material-ui/core/InputAdornment";
+import Snackbar from "components/Snackbar/Snackbar.js";
+
+//functions
+import authorisedFetch from "functions/authorisedFetch.js";
 
 const styles = {
   cardCategoryWhite: {
@@ -37,6 +41,29 @@ export default function Transfer() {
   const classes = useStyles();
   const [state, setState] = React.useState();
   const [accounts, setAccounts] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
+  const [color, setColor] = React.useState();
+  const [msg, setMsg] = React.useState();
+
+  const showNotification = (statusCode, message) => {
+    if (open === false) {
+      switch (statusCode) {
+        case 200:
+          setColor("success");
+          break;
+        case 401:
+          setColor("warning");
+          break;
+        default:
+          setColor("danger");
+      }
+      setOpen(true);
+      setMsg(message);
+      setTimeout(function () {
+        setOpen(false);
+      }, 6000);
+    }
+  };
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value });
@@ -44,34 +71,29 @@ export default function Transfer() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + sessionStorage.getItem("token"),
-      },
-      body: JSON.stringify(state),
-    };
-    fetch("/api/transfer", requestOptions)
-      .then((response) => response.json())
-      .then((data) => console.log(data));
+    authorisedFetch("/api/transfer", "POST", state).then((response) =>
+      response
+        .json()
+        .then((data) => showNotification(response.status, data["msg"]))
+    );
   };
 
   React.useEffect(() => {
-    const requestAccounts = {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + sessionStorage.getItem("token"),
-      },
-    };
-
-    fetch("/api/accounts", requestAccounts)
+    authorisedFetch("/api/accounts", "GET")
       .then((response) => response.json())
       .then((json) => setAccounts(json));
   }, []);
 
   return (
     <div>
+      <Snackbar
+        place="bc"
+        color={color}
+        message={msg}
+        open={open}
+        closeNotification={() => setOpen(false)}
+        close
+      />
       <GridContainer>
         <GridItem xs={12} sm={12} md={12}>
           <Card>
@@ -127,8 +149,8 @@ export default function Transfer() {
                   onChange={handleChange}
                 >
                   {accounts.map((account) => (
-                    <MenuItem key={account['number']} value={account['number']}>
-                      {account['number']}
+                    <MenuItem key={account["number"]} value={account["number"]}>
+                      {account["number"]}
                     </MenuItem>
                   ))}
                 </TextField>

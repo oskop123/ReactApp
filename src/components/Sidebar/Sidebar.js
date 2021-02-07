@@ -11,10 +11,16 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Icon from "@material-ui/core/Icon";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 
 import styles from "assets/jss/material-dashboard-react/components/sidebarStyle.js";
 
 const useStyles = makeStyles(styles);
+
+function logout() {
+  sessionStorage.clear();
+  window.location.href = "/";
+}
 
 export default function Sidebar(props) {
   const classes = useStyles();
@@ -70,6 +76,34 @@ export default function Sidebar(props) {
           </NavLink>
         );
       })}
+      <ListItem
+        onClick={() => logout()}
+        button
+        className={
+          classes.itemLink +
+          classNames({
+            [" " + classes[color]]: true,
+          })
+        }
+      >
+        <ExitToAppIcon
+          className={classNames(classes.itemIcon, {
+            [classes.itemIconRTL]: props.rtlActive,
+            [" " + classes.whiteFont]: true,
+          })}
+        />
+        <ListItemText
+          primary="Logout"
+          className={classNames(
+            classes.itemText,
+            classNames({
+              [" " + classes.whiteFont]: true,
+              [classes.itemTextRTL]: false,
+            })
+          )}
+          disableTypography={true}
+        />
+      </ListItem>
     </List>
   );
 
@@ -88,7 +122,7 @@ export default function Sidebar(props) {
       </a>
     </div>
   );
-  
+
   return (
     <div>
       <Hidden mdUp implementation="css">
@@ -107,9 +141,7 @@ export default function Sidebar(props) {
           }}
         >
           {brand}
-          <div className={classes.sidebarWrapper}>
-            {links}
-          </div>
+          <div className={classes.sidebarWrapper}>{links}</div>
           {image !== undefined ? (
             <div
               className={classes.background}
