@@ -31,6 +31,7 @@ export default function Cards() {
   const [open, setOpen] = React.useState(false);
   const [color, setColor] = React.useState();
   const [msg, setMsg] = React.useState();
+  const [limit, setLimit] = React.useState({});
 
   const showNotification = (statusCode, message) => {
     if (open === false) {
@@ -56,6 +57,21 @@ export default function Cards() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     authorisedFetch("/api/credit_cards", "POST", state).then((response) =>
+      response
+        .json()
+        .then((data) => showNotification(response.status, data["msg"]))
+    );
+  };
+
+  const limitChange = (event, id) => {
+    limit[id] = event.target.value;
+  };
+
+  const handleLimit = async (idCard) => {
+    authorisedFetch("/api/credit_cards/limit", "POST", {
+      idCard,
+      limit: limit[idCard],
+    }).then((response) =>
       response
         .json()
         .then((data) => showNotification(response.status, data["msg"]))
@@ -110,18 +126,19 @@ export default function Cards() {
               <CardBody>
                 <GridContainer>
                   <GridItem xs={6} sm={6} md={6}>
-                    <p className={classes.cardCategory}>Limit: </p>
-                    <h3 className={classes.cardTitle}>{card.maximumLimit}</h3>
                     <TextField
                       variant="outlined"
                       required
-                      name="idAccount"
-                      id="idAccount"
-                      label="Limit: "
+                      name="limit"
+                      id="limit"
+                      label="Limit"
                       margin="normal"
-                      select
+                      defaultValue={card.maximumLimit}
                       fullWidth
-                      onChange={handleChange}
+                      onChange={(event) =>
+                        limitChange(event, card.idCreditCards)
+                      }
+                      type="number"
                     />
                   </GridItem>
                   <GridItem xs={6} sm={6} md={6}>
@@ -134,6 +151,12 @@ export default function Cards() {
                 stats
                 style={{ display: "flex", justifyContent: "flex-end" }}
               >
+                <Button
+                  color="success"
+                  onClick={() => handleLimit(card.idCreditCards)}
+                >
+                  Change
+                </Button>
                 <Button
                   color="danger"
                   onClick={() => handleRemove(card.idCreditCards)}

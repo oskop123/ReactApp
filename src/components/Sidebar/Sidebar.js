@@ -15,12 +15,10 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 
 import styles from "assets/jss/material-dashboard-react/components/sidebarStyle.js";
 
-const useStyles = makeStyles(styles);
+//functions
+import logout from "functions/logout.js";
 
-function logout() {
-  sessionStorage.clear();
-  window.location.href = "/";
-}
+const useStyles = makeStyles(styles);
 
 export default function Sidebar(props) {
   const classes = useStyles();

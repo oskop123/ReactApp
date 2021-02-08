@@ -142,31 +142,14 @@ export default function Accounts() {
               method="post"
               onSubmit={handleSubmit}
             >
-              <CardBody>
-                <TextField
-                  variant="outlined"
-                  required
-                  id="balance"
-                  name="balance"
-                  label="Balance"
-                  margin="normal"
-                  fullWidth
-                  onChange={handleChange}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">PLN</InputAdornment>
-                    ),
-                  }}
-                />
-              </CardBody>
-              <CardFooter
+              <CardBody
                 stats
-                style={{ display: "flex", justifyContent: "flex-end" }}
+                style={{ display: "flex", justifyContent: "center" }}
               >
                 <Button type="submit" color="success" onClick={handleSubmit}>
-                  Add
+                  Add Account
                 </Button>
-              </CardFooter>
+              </CardBody>
             </form>
           </Card>
         </GridItem>
