@@ -19,6 +19,7 @@ import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js"
 
 //functions
 import authorisedFetch from "functions/authorisedFetch.js";
+import { resolveModuleNameFromCache } from "typescript";
 
 const useStyles = makeStyles(styles);
 
@@ -32,6 +33,17 @@ export default function Cards() {
   const [color, setColor] = React.useState();
   const [msg, setMsg] = React.useState();
   const [limit, setLimit] = React.useState({});
+  const [reload, setReload] = React.useState(0);
+
+  React.useEffect(() => {
+    authorisedFetch("/api/credit_cards", "GET")
+      .then((response) => response.json())
+      .then((json) => setCC(json));
+
+    authorisedFetch("/api/accounts", "GET")
+      .then((response) => response.json())
+      .then((json) => setAccounts(json));
+  }, [reload]);
 
   const showNotification = (statusCode, message) => {
     if (open === false) {
@@ -45,8 +57,9 @@ export default function Cards() {
         default:
           setColor("danger");
       }
-      setOpen(true);
-      setMsg(message);
+      setReload(reload + 1);
+      //setOpen(true);
+      //setMsg(message);
     }
   };
 
@@ -56,7 +69,7 @@ export default function Cards() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    authorisedFetch("/api/credit_cards", "POST", state).then((response) =>
+    await authorisedFetch("/api/credit_cards", "POST", state).then((response) =>
       response
         .json()
         .then((data) => showNotification(response.status, data["msg"]))
@@ -68,7 +81,7 @@ export default function Cards() {
   };
 
   const handleLimit = async (idCard) => {
-    authorisedFetch("/api/credit_cards/limit", "POST", {
+    await authorisedFetch("/api/credit_cards/limit", "POST", {
       idCard,
       limit: limit[idCard],
     }).then((response) =>
@@ -79,7 +92,7 @@ export default function Cards() {
   };
 
   const handleRemove = async (cc) => {
-    authorisedFetch("/api/credit_cards", "DELETE", {
+    await authorisedFetch("/api/credit_cards", "DELETE", {
       idCard: cc,
     }).then((response) =>
       response
@@ -87,20 +100,6 @@ export default function Cards() {
         .then((data) => showNotification(response.status, data["msg"]))
     );
   };
-
-  const refresh = async () => {
-    authorisedFetch("/api/credit_cards", "GET")
-      .then((response) => response.json())
-      .then((json) => setCC(json));
-  };
-
-  React.useEffect(() => {
-    refresh();
-
-    authorisedFetch("/api/accounts", "GET")
-      .then((response) => response.json())
-      .then((json) => setAccounts(json));
-  }, [open]);
 
   return (
     <div>
@@ -185,20 +184,17 @@ export default function Cards() {
                 <TextField
                   variant="outlined"
                   required
-                  name="idAccount"
-                  id="idAccount"
-                  label="idAccounts"
+                  name="accountNumber"
+                  id="accountNumber"
+                  label="Account"
                   margin="normal"
                   select
                   fullWidth
                   onChange={handleChange}
                 >
                   {accounts.map((account) => (
-                    <MenuItem
-                      key={account["idAccounts"]}
-                      value={account["idAccounts"]}
-                    >
-                      {account["idAccounts"]}
+                    <MenuItem key={account["number"]} value={account["number"]}>
+                      {account["number"]}
                     </MenuItem>
                   ))}
                 </TextField>

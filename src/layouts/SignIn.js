@@ -10,6 +10,8 @@ import Container from "@material-ui/core/Container";
 
 import PropTypes from "prop-types";
 
+import Snackbar from "components/Snackbar/Snackbar.js";
+
 const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -30,20 +32,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-async function loginUser(credentials) {
-  return fetch("/api/loginjwt", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(credentials),
-  }).then((data) => data.json());
-}
-
 export default function SignIn({ setToken }) {
   const classes = useStyles();
 
   const [state, setState] = React.useState();
+  const [open, setOpen] = React.useState(false);
+  const [msg, setMsg] = React.useState();
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value });
@@ -51,57 +45,80 @@ export default function SignIn({ setToken }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = await loginUser(state);
-    setToken(token);
+    const token = await fetch("/api/loginjwt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(state),
+    }).then((data) => data.json());
+
+    if ("msg" in token) {
+      console.log(token["msg"]);
+      setOpen(true);
+      setMsg(token["msg"]);
+    } else {
+      setToken(token);
+    }
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
-        <form className={classes.form} noValidate onSubmit={handleSubmit}>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="Username"
-            label="Username"
-            name="username"
-            autoComplete="Login"
-            autoFocus
-            onChange={handleChange}
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-            onChange={handleChange}
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            Sign In
-          </Button>
-        </form>
-      </div>
-    </Container>
+    <div>
+      <Snackbar
+        place="bc"
+        color="warning"
+        message={msg}
+        open={open}
+        closeNotification={() => setOpen(false)}
+        close
+      />
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign in
+          </Typography>
+          <form className={classes.form} noValidate onSubmit={handleSubmit}>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="Username"
+              label="Username"
+              name="username"
+              autoComplete="Login"
+              autoFocus
+              onChange={handleChange}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              onChange={handleChange}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+            >
+              Sign In
+            </Button>
+          </form>
+        </div>
+      </Container>
+    </div>
   );
 }
 

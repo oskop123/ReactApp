@@ -31,6 +31,7 @@ export default function Accounts() {
   const [open, setOpen] = React.useState(false);
   const [color, setColor] = React.useState();
   const [msg, setMsg] = React.useState();
+  const [reload, setReload] = React.useState(0);
 
   const showNotification = (statusCode, message) => {
     if (open === false) {
@@ -44,11 +45,14 @@ export default function Accounts() {
         default:
           setColor("danger");
       }
+      setReload(reload + 1);
+      /*
       setOpen(true);
       setMsg(message);
       setTimeout(function () {
         setOpen(false);
       }, 6000);
+      */
     }
   };
 
@@ -79,7 +83,7 @@ export default function Accounts() {
     authorisedFetch("/api/accounts", "GET")
       .then((response) => response.json())
       .then((json) => setUsers(json));
-  }, [open]);
+  }, [reload]);
 
   return (
     <div>
