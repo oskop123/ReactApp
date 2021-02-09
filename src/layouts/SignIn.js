@@ -54,7 +54,6 @@ export default function SignIn({ setToken }) {
     }).then((data) => data.json());
 
     if ("msg" in token) {
-      console.log(token["msg"]);
       setOpen(true);
       setMsg(token["msg"]);
     } else {

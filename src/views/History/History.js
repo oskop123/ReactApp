@@ -61,27 +61,27 @@ export default function BasicTable() {
   const [page, setPage] = React.useState(0);
   const [rows, setRows] = React.useState([]);
   const [state, setState] = React.useState({});
-  const [oldState, setOldState] = React.useState();
+  const [oldState, setOldState] = React.useState({});
   const [numRows, setNumRows] = React.useState(0);
-  const [reload, setReload] = React.useState(0);
+  const [reload, setReload] = React.useState(true);
 
   React.useEffect(() => {
     authorisedFetch("/api/accounts", "GET")
       .then((response) => response.json())
       .then((json) => setAccounts(json));
-  }, [reload]);
+  }, []);
 
   React.useEffect(() => handleLoad(), [reload]);
 
   function handleChangeRowsPerPage(event) {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-    setReload(reload + 1);
+    setReload(!reload);
   }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-    setReload(reload + 1);
+    setReload(!reload);
   };
 
   const handleChange = (event) => {
@@ -89,19 +89,6 @@ export default function BasicTable() {
   };
 
   const handleLoad = () => {
-    if (state.hasOwnProperty("fromDate")) {
-      state.fromDate = state.fromDate.replace("T", " ");
-    }
-    if (state.hasOwnProperty("toDate")) {
-      state.toDate = state.toDate.replace("T", " ");
-    }
-
-    for (const key in state) {
-      if (state[key] === "") {
-        delete state[key];
-      }
-    }
-
     authorisedFetch("/api/transactions", "POST", {
       ...oldState,
       limit: rowsPerPage.toString(),
@@ -115,6 +102,8 @@ export default function BasicTable() {
   };
 
   const handleSearch = () => {
+    if (!state.hasOwnProperty("customerNumber")) return;
+
     if (state.hasOwnProperty("fromDate")) {
       state.fromDate = state.fromDate.replace("T", " ");
     }
@@ -157,7 +146,6 @@ export default function BasicTable() {
                     variant="outlined"
                     required
                     name="customerNumber"
-                    id="Account"
                     label="Account"
                     margin="normal"
                     select
@@ -177,7 +165,6 @@ export default function BasicTable() {
                 <Grid item xs={6} sm={6} md={6}>
                   <TextField
                     variant="outlined"
-                    id="from"
                     label="Start Date"
                     name="fromDate"
                     fullWidth
@@ -192,7 +179,6 @@ export default function BasicTable() {
                 <Grid item xs={6} sm={6} md={6}>
                   <TextField
                     variant="outlined"
-                    id="from"
                     label="End Date"
                     name="toDate"
                     fullWidth
@@ -207,7 +193,6 @@ export default function BasicTable() {
                 <Grid item xs={6} sm={6} md={6}>
                   <TextField
                     variant="outlined"
-                    id="from"
                     label="From Amount"
                     name="fromAmount"
                     fullWidth
@@ -218,7 +203,6 @@ export default function BasicTable() {
                 <Grid item xs={6} sm={6} md={6}>
                   <TextField
                     variant="outlined"
-                    id="from"
                     label="To Amount"
                     name="toAmount"
                     fullWidth
@@ -229,7 +213,6 @@ export default function BasicTable() {
                 <Grid item xs={6} sm={6} md={6}>
                   <TextField
                     variant="outlined"
-                    id="from"
                     label="Credit Card"
                     name="idCreditCard"
                     fullWidth
@@ -240,7 +223,6 @@ export default function BasicTable() {
                 <Grid item xs={6} sm={6} md={6}>
                   <TextField
                     variant="outlined"
-                    id="fromacc"
                     label="From Account"
                     name="foreignNumber"
                     fullWidth
