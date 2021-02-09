@@ -12,18 +12,10 @@ import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 import Snackbar from "components/Snackbar/Snackbar.js";
-
-//functions
+// functions
 import authorisedFetch from "functions/authorisedFetch.js";
 
 const styles = {
-  cardCategoryWhite: {
-    color: "rgba(255,255,255,.62)",
-    margin: "0",
-    fontSize: "14px",
-    marginTop: "0",
-    marginBottom: "0",
-  },
   cardTitleWhite: {
     color: "#FFFFFF",
     marginTop: "0px",
@@ -44,6 +36,12 @@ export default function Transfer() {
   const [open, setOpen] = React.useState(false);
   const [color, setColor] = React.useState();
   const [msg, setMsg] = React.useState();
+
+  React.useEffect(() => {
+    authorisedFetch("/api/accounts", "GET")
+      .then((response) => response.json())
+      .then((json) => setAccounts(json));
+  }, []);
 
   const showNotification = (statusCode, message) => {
     if (open === false) {
@@ -77,12 +75,6 @@ export default function Transfer() {
         .then((data) => showNotification(response.status, data["msg"]))
     );
   };
-
-  React.useEffect(() => {
-    authorisedFetch("/api/accounts", "GET")
-      .then((response) => response.json())
-      .then((json) => setAccounts(json));
-  }, []);
 
   return (
     <div>

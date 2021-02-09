@@ -1,4 +1,5 @@
 import React from "react";
+// @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -7,33 +8,22 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-
+import TablePagination from "@material-ui/core/TablePagination";
+import Grid from "@material-ui/core/Grid";
+import TextField from "@material-ui/core/TextField";
+import MenuItem from "@material-ui/core/MenuItem";
+// core components
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
-import TablePagination from "@material-ui/core/TablePagination";
-
-import Grid from "@material-ui/core/Grid";
-
-import TextField from "@material-ui/core/TextField";
-import MenuItem from "@material-ui/core/MenuItem";
-
 import Button from "components/CustomButtons/Button.js";
-
-//functions
+// functions
 import authorisedFetch from "functions/authorisedFetch.js";
-import { ROW_SELECTED } from "@material-ui/data-grid";
+import downloadPDF from "functions/downloadPDF.js";
 
 const useStyles = makeStyles({
   table: {
     minWidth: 650,
-  },
-  cardCategoryWhite: {
-    color: "rgba(255,255,255,.62)",
-    margin: "0",
-    fontSize: "14px",
-    marginTop: "0",
-    marginBottom: "0",
   },
   cardTitleWhite: {
     color: "#FFFFFF",
@@ -53,12 +43,6 @@ const headCells = [
     label: "Date",
   },
   { id: "amount", alignRight: true, label: "Amount" },
-  { id: "old_balance", alignRight: true, label: "Old Balance" },
-  {
-    id: "new_balance",
-    alignRight: true,
-    label: "New Balance",
-  },
   {
     id: "message",
     alignRight: true,
@@ -77,55 +61,34 @@ export default function BasicTable() {
   const [page, setPage] = React.useState(0);
   const [rows, setRows] = React.useState([]);
   const [state, setState] = React.useState({});
+  const [oldState, setOldState] = React.useState();
   const [numRows, setNumRows] = React.useState(0);
   const [reload, setReload] = React.useState(0);
-
-  function handleChangeRowsPerPage(event) {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-    setReload(reload + 1);
-    //handleSubmit(0, event.target.value);
-  }
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-    setReload(reload + 1);
-    //handleSubmit(newPage, rowsPerPage);
-  };
 
   React.useEffect(() => {
     authorisedFetch("/api/accounts", "GET")
       .then((response) => response.json())
       .then((json) => setAccounts(json));
-    handleSubmit();
   }, [reload]);
+
+  React.useEffect(() => handleLoad(), [reload]);
+
+  function handleChangeRowsPerPage(event) {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+    setReload(reload + 1);
+  }
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+    setReload(reload + 1);
+  };
 
   const handleChange = (event) => {
     setState({ ...state, [event.target.name]: event.target.value });
   };
 
-  const getRaport = (idTransactions) => {
-    authorisedFetch("/api/transactions/pdf", "POST", { idTransactions })
-      .then((response) => response.blob())
-      .then((blob) => {
-        // Create blob link to download
-        const url = window.URL.createObjectURL(new Blob([blob]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", idTransactions + `.pdf`);
-
-        // Append to html link element page
-        document.body.appendChild(link);
-
-        // Start download
-        link.click();
-
-        // Clean up and remove the link
-        link.parentNode.removeChild(link);
-      });
-  };
-
-  const handleSubmit = () => {
+  const handleLoad = () => {
     if (state.hasOwnProperty("fromDate")) {
       state.fromDate = state.fromDate.replace("T", " ");
     }
@@ -140,9 +103,37 @@ export default function BasicTable() {
     }
 
     authorisedFetch("/api/transactions", "POST", {
-      ...state,
+      ...oldState,
       limit: rowsPerPage.toString(),
       offset: (page * rowsPerPage).toString(),
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        setNumRows(parseInt(json[0].rowsNumber, 10));
+        setRows(json.slice(1));
+      });
+  };
+
+  const handleSearch = () => {
+    if (state.hasOwnProperty("fromDate")) {
+      state.fromDate = state.fromDate.replace("T", " ");
+    }
+    if (state.hasOwnProperty("toDate")) {
+      state.toDate = state.toDate.replace("T", " ");
+    }
+
+    for (const key in state) {
+      if (state[key] === "") {
+        delete state[key];
+      }
+    }
+
+    setOldState(state);
+
+    authorisedFetch("/api/transactions", "POST", {
+      ...state,
+      limit: rowsPerPage.toString(),
+      offset: 0,
     })
       .then((response) => response.json())
       .then((json) => {
@@ -257,7 +248,7 @@ export default function BasicTable() {
                     onChange={handleChange}
                   />
                 </Grid>
-                <Button color="success" onClick={handleSubmit} fullWidth="true">
+                <Button color="success" onClick={handleSearch} fullWidth="true">
                   Search
                 </Button>
               </Grid>
@@ -285,15 +276,17 @@ export default function BasicTable() {
                     {row.date}
                   </TableCell>
                   <TableCell align="right">{row.amountOfTransaction}</TableCell>
-                  <TableCell align="right">{row.old_balance}</TableCell>
-                  <TableCell align="right">{row.new_balance}</TableCell>
                   <TableCell align="right">{row.message}</TableCell>
                   <TableCell align="right">{row.idAccounts}</TableCell>
                   <TableCell align="right">
                     {row.idAccountsOfRecipient}
                   </TableCell>
                   <TableCell align="right">
-                    <Button onClick={() => getRaport(row.idTransactions)}>
+                    <Button
+                      onClick={() =>
+                        downloadPDF({ idTransactions: row.idTransactions })
+                      }
+                    >
                       Get
                     </Button>
                   </TableCell>

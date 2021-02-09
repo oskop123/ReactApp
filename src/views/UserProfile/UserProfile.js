@@ -8,15 +8,10 @@ import GridContainer from "components/Grid/GridContainer.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
+// functions
+import authorisedFetch from "functions/authorisedFetch.js";
 
 const styles = {
-  cardCategoryWhite: {
-    color: "rgba(255,255,255,.62)",
-    margin: "0",
-    fontSize: "14px",
-    marginTop: "0",
-    marginBottom: "0",
-  },
   cardTitleWhite: {
     color: "#FFFFFF",
     marginTop: "0px",
@@ -34,25 +29,11 @@ export default function UserProfile() {
   const classes = useStyles();
   const [user, setUser] = React.useState({});
 
-  const InputLabelProps = {
-    shrink: true,
-  };
-
   React.useEffect(() => {
-    getCustomer();
-  }, []);
-
-  const getCustomer = async () => {
-    const requestOptions = {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + sessionStorage.getItem("access_token"),
-      },
-    };
-    fetch("/api/customer", requestOptions)
+    authorisedFetch("/api/customer", "GET")
       .then((response) => response.json())
       .then((json) => setUser(json));
-  };
+  }, []);
 
   return (
     <Card>
@@ -71,7 +52,9 @@ export default function UserProfile() {
               }}
               fullWidth
               margin="normal"
-              InputLabelProps={InputLabelProps}
+              InputLabelProps={{
+                shrink: true,
+              }}
             />
           </GridItem>
           <GridItem xs={12} sm={6} md={6}>
@@ -84,7 +67,9 @@ export default function UserProfile() {
               }}
               fullWidth
               margin="normal"
-              InputLabelProps={InputLabelProps}
+              InputLabelProps={{
+                shrink: true,
+              }}
             />
           </GridItem>
           <GridItem xs={12} sm={6} md={6}>
@@ -97,7 +82,9 @@ export default function UserProfile() {
               }}
               fullWidth
               margin="normal"
-              InputLabelProps={InputLabelProps}
+              InputLabelProps={{
+                shrink: true,
+              }}
             />
           </GridItem>
           <GridItem xs={12} sm={6} md={6}>
@@ -110,7 +97,9 @@ export default function UserProfile() {
               }}
               fullWidth
               margin="normal"
-              InputLabelProps={InputLabelProps}
+              InputLabelProps={{
+                shrink: true,
+              }}
             />
           </GridItem>
           <GridItem xs={12} sm={6} md={6}>
@@ -123,7 +112,9 @@ export default function UserProfile() {
               }}
               fullWidth
               margin="normal"
-              InputLabelProps={InputLabelProps}
+              InputLabelProps={{
+                shrink: true,
+              }}
             />
           </GridItem>
           <GridItem xs={12} sm={6} md={6}>
@@ -136,7 +127,9 @@ export default function UserProfile() {
               }}
               fullWidth
               margin="normal"
-              InputLabelProps={InputLabelProps}
+              InputLabelProps={{
+                shrink: true,
+              }}
             />
           </GridItem>
         </GridContainer>
