@@ -31,7 +31,7 @@ const useStyles = makeStyles(styles);
 
 export default function Transfer() {
   const classes = useStyles();
-  const [state, setState] = React.useState();
+  const [state, setState] = React.useState({});
   const [accounts, setAccounts] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [color, setColor] = React.useState();
@@ -69,11 +69,18 @@ export default function Transfer() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    authorisedFetch("/api/transfer", "POST", state).then((response) =>
-      response
-        .json()
-        .then((data) => showNotification(response.status, data["msg"]))
-    );
+    if (
+      "title" in state &&
+      "amount" in state &&
+      "accountNumber" in state &&
+      "fromAccount" in state
+    ) {
+      authorisedFetch("/api/transfer", "POST", state).then((response) =>
+        response
+          .json()
+          .then((data) => showNotification(response.status, data["msg"]))
+      );
+    }
   };
 
   return (

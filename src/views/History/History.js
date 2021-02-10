@@ -12,6 +12,7 @@ import TablePagination from "@material-ui/core/TablePagination";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
+import GetAppIcon from "@material-ui/icons/GetApp";
 // core components
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
@@ -50,7 +51,7 @@ const headCells = [
   },
   { id: "from", alignRight: true, label: "From" },
   { id: "to", alignRight: true, label: "To" },
-  { id: "download", alignRight: true, label: "Download" },
+  { id: "raport", alignRight: true, label: "Download Raport" },
 ];
 
 export default function BasicTable() {
@@ -89,16 +90,20 @@ export default function BasicTable() {
   };
 
   const handleLoad = () => {
+    if (!state.hasOwnProperty("customerNumber")) return;
+
     authorisedFetch("/api/transactions", "POST", {
       ...oldState,
       limit: rowsPerPage.toString(),
       offset: (page * rowsPerPage).toString(),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        setNumRows(parseInt(json[0].rowsNumber, 10));
-        setRows(json.slice(1));
-      });
+    }).then((response) =>
+      response.json().then((json) => {
+        if (response.status === 200) {
+          setNumRows(parseInt(json[0].rowsNumber, 10));
+          setRows(json.slice(1));
+        }
+      })
+    );
   };
 
   const handleSearch = () => {
@@ -123,12 +128,14 @@ export default function BasicTable() {
       ...state,
       limit: rowsPerPage.toString(),
       offset: 0,
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        setNumRows(parseInt(json[0].rowsNumber, 10));
-        setRows(json.slice(1));
-      });
+    }).then((response) =>
+      response.json().then((json) => {
+        if (response.status === 200) {
+          setNumRows(parseInt(json[0].rowsNumber, 10));
+          setRows(json.slice(1));
+        }
+      })
+    );
   };
 
   return (
@@ -265,11 +272,12 @@ export default function BasicTable() {
                   </TableCell>
                   <TableCell align="right">
                     <Button
+                      justIcon
                       onClick={() =>
                         downloadPDF({ idTransactions: row.idTransactions })
                       }
                     >
-                      Get
+                      <GetAppIcon />
                     </Button>
                   </TableCell>
                 </TableRow>
