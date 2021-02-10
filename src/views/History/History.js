@@ -124,6 +124,8 @@ export default function BasicTable() {
 
     setOldState(state);
 
+    setPage(0);
+
     authorisedFetch("/api/transactions", "POST", {
       ...state,
       limit: rowsPerPage.toString(),
